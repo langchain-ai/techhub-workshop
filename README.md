@@ -11,17 +11,22 @@ This dataset simulates a customer support system for "TechHub," a consumer elect
 - RAG agent for product specs and policies
 - Offline evaluation (final response, trajectory, single-step, multi-turn)
 
-##Directory Structure
+## Directory Structure
 
 ```
 lc-enablement-workshop/
 ├── data/                      # Dataset files (ready to use)
-│   ├── SCHEMA.md              # Complete schema documentation
-│   ├── products.json          # 25 products
-│   ├── customers.json         # 50 customers
-│   ├── orders.json            # 250 orders
-│   ├── order_items.json       # 439 order items
-│   └── techhub.db             # SQLite database
+│   ├── structured/            # Tabular data and database
+│   │   ├── SCHEMA.md          # Complete schema documentation
+│   │   ├── products.json      # 25 products
+│   │   ├── customers.json     # 50 customers
+│   │   ├── orders.json        # 250 orders
+│   │   ├── order_items.json   # 439 order items
+│   │   └── techhub.db         # SQLite database
+│   │
+│   └── documents/             # RAG documents (unstructured)
+│       ├── policies/          # 5 policy documents
+│       └── products/          # 25 product documents
 │
 ├── data_generation/           # Generation scripts & documentation
 │   ├── README.md              # Complete generation guide
@@ -45,7 +50,7 @@ The dataset is ready to use! All files are in the `data/` directory.
 import sqlite3
 
 # Connect to database
-conn = sqlite3.connect('data/techhub.db')
+conn = sqlite3.connect('data/structured/techhub.db')
 cursor = conn.cursor()
 
 # Find customer by email (HITL scenario)
@@ -73,7 +78,7 @@ conn.close()
 
 ```bash
 # Open database
-sqlite3 data/techhub.db
+sqlite3 data/structured/techhub.db
 
 # Try sample queries
 .read data_generation/sample_queries.sql
@@ -89,10 +94,10 @@ SELECT COUNT(*) FROM orders WHERE status = 'Shipped';
 import json
 
 # Load data
-with open('data/customers.json') as f:
+with open('data/structured/customers.json') as f:
     customers = json.load(f)
 
-with open('data/orders.json') as f:
+with open('data/structured/orders.json') as f:
     orders = json.load(f)
 
 # Find customer
@@ -208,7 +213,7 @@ python validate_database.py
 
 ## Database Schema
 
-**For complete schema documentation** (including all constraints, relationships, query patterns, and tips for text-to-SQL agents), see **`data/SCHEMA.md`**.
+**For complete schema documentation** (including all constraints, relationships, query patterns, and tips for text-to-SQL agents), see **`data/structured/SCHEMA.md`**.
 
 Quick overview:
 

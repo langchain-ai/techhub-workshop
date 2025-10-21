@@ -15,7 +15,7 @@ from collections import Counter, defaultdict
 from pathlib import Path
 
 # Configuration
-DATA_DIR = Path(__file__).parent.parent / "data"
+DATA_DIR = Path(__file__).parent.parent / "data" / "structured"
 TARGET_ITEMS = 500
 
 

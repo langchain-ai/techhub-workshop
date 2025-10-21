@@ -22,7 +22,7 @@ except ImportError:
     exit(1)
 
 # Configuration
-DATA_DIR = Path(__file__).parent.parent / "data"
+DATA_DIR = Path(__file__).parent.parent / "data" / "structured"
 NUM_CUSTOMERS = 50
 
 # Regional distributions (from plan lines 672-692)

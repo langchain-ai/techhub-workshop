@@ -14,7 +14,7 @@ import sqlite3
 from pathlib import Path
 
 # Configuration
-DATA_DIR = Path(__file__).parent.parent / "data"
+DATA_DIR = Path(__file__).parent.parent / "data" / "structured"
 DB_PATH = DATA_DIR / "techhub.db"
 
 # SQL Schema (from full_project_plan.md lines 1284-1336)

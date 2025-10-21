@@ -18,7 +18,7 @@ from pathlib import Path
 # Configuration
 CURRENT_DATE = datetime.date(2025, 10, 20)  # Configurable anchor date
 NUM_ORDERS = 250
-DATA_DIR = Path(__file__).parent.parent / "data"
+DATA_DIR = Path(__file__).parent.parent / "data" / "structured"
 
 
 def load_customers():

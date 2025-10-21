@@ -18,7 +18,7 @@ The TechHub dataset is a high-quality synthetic dataset designed to teach enterp
 To regenerate the complete dataset from scratch:
 
 ```bash
-# Step 0: Manually create/edit products.json in ../data/
+# Step 0: Manually create/edit products.json in ../data/structured/
 # (Products are statically defined - see products.json for template)
 
 # Step 1: Generate customers (requires: pip install faker)
@@ -43,7 +43,7 @@ python validate_database.py
 
 ### Step 0: Products (Static Definition)
 
-**File:** `../data/products.json`
+**File:** `../data/structured/products.json`
 
 Products are manually defined in JSON format with exact specifications from the project plan. This gives us complete control over the product catalog for workshop scenarios.
 
@@ -52,12 +52,12 @@ Products are manually defined in JSON format with exact specifications from the 
 - Exact names/prices needed for workshop demos
 - No need for generation script complexity
 
-**To modify:** Simply edit `../data/products.json` directly.
+**To modify:** Simply edit `../data/structured/products.json` directly.
 
 ### Step 1: Generate Customers
 
 **Script:** `generate_customers.py`  
-**Output:** `../data/customers.json`  
+**Output:** `../data/structured/customers.json`  
 **Requirements:** `pip install faker`
 
 Generates 50 diverse customer records using the Faker library for realistic names, addresses, and contact information.
@@ -76,7 +76,7 @@ Generates 50 diverse customer records using the Faker library for realistic name
 ### Step 2: Generate Orders
 
 **Script:** `generate_orders.py`  
-**Output:** `../data/orders.json`  
+**Output:** `../data/structured/orders.json`  
 **Dependencies:** customers.json, products.json
 
 Generates 250 orders with realistic temporal and behavioral patterns.
@@ -96,7 +96,7 @@ Generates 250 orders with realistic temporal and behavioral patterns.
 ### Step 3: Generate Order Items
 
 **Script:** `generate_order_items.py`  
-**Output:** `../data/order_items.json` + updates `../data/orders.json` totals  
+**Output:** `../data/structured/order_items.json` + updates `../data/structured/orders.json` totals  
 **Dependencies:** customers.json, products.json, orders.json
 
 Generates ~440 order items with product affinity patterns and calculates order totals.
@@ -115,10 +115,10 @@ Generates ~440 order items with product affinity patterns and calculates order t
 ### Step 4: Create Database
 
 **Script:** `create_database.py`  
-**Output:** `../data/techhub.db`  
+**Output:** `../data/structured/techhub.db`  
 **Dependencies:** All JSON files
 
-Creates SQLite database with full schema, constraints, and indexes. See `../data/SCHEMA.md` for complete schema documentation.
+Creates SQLite database with full schema, constraints, and indexes. See `../data/structured/SCHEMA.md` for complete schema documentation.
 
 **Features:**
 - 4 tables (customers, products, orders, order_items)
@@ -132,7 +132,7 @@ Creates SQLite database with full schema, constraints, and indexes. See `../data
 ### Step 5: Validate Database
 
 **Script:** `validate_database.py`  
-**Input:** `../data/techhub.db`  
+**Input:** `../data/structured/techhub.db`  
 **Output:** Comprehensive validation report
 
 Runs extensive validation checks on the generated database.
@@ -250,7 +250,7 @@ See `sample_queries.sql` for example workshop queries.
 
 ## Additional Resources
 
-- **Schema documentation:** `../data/SCHEMA.md` (complete database schema reference)
+- **Schema documentation:** `../data/structured/SCHEMA.md` (complete database schema reference)
 - **Full project plan:** `project_plan/full_project_plan.md` (comprehensive 2000+ line spec)
 - **Database summary:** `DATABASE_SUMMARY.md` (statistics and validation results)
 - **Sample queries:** `sample_queries.sql` (workshop scenario queries)
