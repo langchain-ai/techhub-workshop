@@ -163,7 +163,6 @@ Runs extensive validation checks on the generated database.
 | File | Purpose |
 |------|---------|
 | `sample_queries.sql` | Workshop scenario SQL queries |
-| `DATABASE_SUMMARY.md` | Database generation summary |
 | `project_plan/` | Complete project planning documents |
 
 ## Dependencies
@@ -251,8 +250,8 @@ See `sample_queries.sql` for example workshop queries.
 ## Additional Resources
 
 - **Schema documentation:** `../data/structured/SCHEMA.md` (complete database schema reference)
+- **Documents overview:** `../data/DOCUMENTS_OVERVIEW.md` (complete RAG corpus documentation)
 - **Full project plan:** `project_plan/full_project_plan.md` (comprehensive 2000+ line spec)
-- **Database summary:** `DATABASE_SUMMARY.md` (statistics and validation results)
 - **Sample queries:** `sample_queries.sql` (workshop scenario queries)
 - **Main README:** `../README.md` (usage instructions for workshop participants)
 

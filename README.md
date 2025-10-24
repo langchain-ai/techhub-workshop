@@ -24,9 +24,10 @@ lc-enablement-workshop/
 │   │   ├── order_items.json   # 439 order items
 │   │   └── techhub.db         # SQLite database
 │   │
-│   └── documents/             # RAG documents (unstructured)
-│       ├── policies/          # 5 policy documents
-│       └── products/          # 25 product documents
+│   ├── documents/             # RAG documents (unstructured)
+│   │   ├── policies/          # 5 policy documents
+│   │   └── products/          # 25 product documents
+│   └── DOCUMENTS_OVERVIEW.md  # RAG corpus documentation
 │
 ├── data_generation/           # Generation scripts & documentation
 │   ├── README.md              # Complete generation guide
@@ -211,11 +212,17 @@ python validate_database.py
 - ✅ Perfect segment distributions
 - ✅ All queries <1ms (target: <100ms)
 
-## Database Schema
+## Documentation
+
+### Database Schema
 
 **For complete schema documentation** (including all constraints, relationships, query patterns, and tips for text-to-SQL agents), see **`data/structured/SCHEMA.md`**.
 
-Quick overview:
+### RAG Document Corpus
+
+**For complete document corpus documentation** (including document structure, policy details, content guidelines, and multi-agent scenario support), see **`data/DOCUMENTS_OVERVIEW.md`**.
+
+### Database Quick Overview
 
 ```sql
 customers (50 records)
@@ -282,7 +289,9 @@ Synthetic data created for educational purposes. Free to use and distribute.
 
 ## Additional Resources
 
-- **Generation Details:** `data_generation/README.md` - Complete generation guide
+- **Database Schema:** `data/structured/SCHEMA.md` - Complete database documentation
+- **RAG Documents:** `data/DOCUMENTS_OVERVIEW.md` - Complete corpus documentation
+- **Generation Guide:** `data_generation/README.md` - How to regenerate dataset
 - **Project Plan:** `data_generation/project_plan/full_project_plan.md` - Full specification
 - **Sample Queries:** `data_generation/sample_queries.sql` - Workshop SQL queries
 - **Validation:** Run `python data_generation/validate_database.py` anytime
