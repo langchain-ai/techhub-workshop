@@ -991,7 +991,7 @@ wheels = [
 [[package]]
 name = "lc-enablement-workshop"
 version = "0.1.0"
-source = { virtual = "." }
+source = { editable = "." }
 dependencies = [
     { name = "ipykernel" },
     { name = "jupyter" },
