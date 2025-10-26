@@ -1,7 +1,29 @@
 [project]
 name = "lc-enablement-workshop"
 version = "0.1.0"
-description = "Add your description here"
+description = "AI Engineering Lifecycle on LangSmith Platform - Workshop Series"
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = []
+dependencies = [
+    # LangChain Core
+    "langchain>=0.3.0",
+    "langchain-core>=0.3.0",
+    "langchain-anthropic>=0.3.0",
+    "langchain-openai>=0.2.0",
+    
+    # LangGraph
+    "langgraph>=0.2.0",
+    
+    # LangSmith
+    "langsmith>=0.2.0",
+    
+    # Jupyter
+    "jupyter>=1.0.0",
+    "ipykernel>=6.29.0",
+    
+    # Utilities
+    "python-dotenv>=1.0.0",
+]
+
+[dependency-groups]
+dev = []
