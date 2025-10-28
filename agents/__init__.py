@@ -6,9 +6,9 @@ used across multiple workshop modules.
 """
 
 from agents.db_agent import create_db_agent
-from agents.rag_agent import create_rag_agent
+from agents.docs_agent import create_docs_agent
 
 __all__ = [
     "create_db_agent",
-    "create_rag_agent",
+    "create_docs_agent",
 ]

@@ -1,5 +1,5 @@
 """
-RAG tools for searching TechHub product documentation and policies.
+Documents tools for searching TechHub product documentation and policies.
 
 These tools provide semantic search over:
 - Product documentation (specs, features, setup guides)

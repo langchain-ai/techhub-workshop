@@ -1,4 +1,4 @@
-"""RAG Agent for TechHub customer support.
+"""Documents Agent for TechHub customer support.
 
 This agent specializes in searching product documentation and store policies
 using retrieval-augmented generation (RAG).
@@ -11,8 +11,8 @@ from langgraph.checkpoint.memory import MemorySaver
 from tools import search_policy_docs, search_product_docs
 
 
-def create_rag_agent():
-    """Create RAG agent specialized in product documentation and policies.
+def create_docs_agent():
+    """Create Documents agent specialized in product documentation and policies.
 
     Returns:
         Compiled agent graph that can search product specs and policies.
