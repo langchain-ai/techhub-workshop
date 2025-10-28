@@ -7,8 +7,10 @@ used across multiple workshop modules.
 
 from agents.db_agent import create_db_agent
 from agents.docs_agent import create_docs_agent
+from agents.supervisor_agent import create_supervisor_agent
 
 __all__ = [
     "create_db_agent",
     "create_docs_agent",
+    "create_supervisor_agent",
 ]
