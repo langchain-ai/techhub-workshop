@@ -72,6 +72,7 @@ Why? LangGraph API [handles persistence automatically](https://docs.langchain.co
 
 - `db_agent_graph.py` - Database agent for querying orders and products
 - `docs_agent_graph.py` - Documents agent for searching product docs and policies
+- `supervisor_agent_graph.py` - Supervisor agent coordinating between specialists
 
 ## Adding New Deployments
 

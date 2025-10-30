@@ -11,7 +11,10 @@ from agents.docs_agent import (
     DOCS_AGENT_SYSTEM_PROMPT,
     create_docs_agent,
 )
-from agents.supervisor_agent import create_supervisor_agent
+from agents.supervisor_agent import (
+    SUPERVISOR_AGENT_SYSTEM_PROMPT,
+    create_supervisor_agent,
+)
 
 __all__ = [
     "create_db_agent",
@@ -21,4 +24,5 @@ __all__ = [
     "DOCS_AGENT_SYSTEM_PROMPT",
     "DOCS_AGENT_BASE_TOOLS",
     "create_supervisor_agent",
+    "SUPERVISOR_AGENT_SYSTEM_PROMPT",
 ]

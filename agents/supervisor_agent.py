@@ -10,19 +10,77 @@ from langchain.chat_models import init_chat_model
 from langchain.tools import ToolRuntime, tool
 from langgraph.checkpoint.memory import MemorySaver
 
+from config import DEFAULT_MODEL
 
-def create_supervisor_agent(db_agent, docs_agent, state_schema=None):
-    """Create supervisor agent that routes between database and documents agents.
+# ============================================================================
+# AGENT CONFIGURATION
+# These constants define the supervisor agent's behavior and can be easily
+# customized for different workshop scenarios or customer requirements.
+# ============================================================================
+
+SUPERVISOR_AGENT_SYSTEM_PROMPT = """You are a supervisor for TechHub customer support.
+
+Your role is to route queries to the appropriate specialists:
+- Use database_specialist for order status, product prices, and customer order history
+- Use documentation_specialist for product specs, policies, and general information
+
+Note: After customer identity verification, their customer_id is available and automatically included in the state
+when calling the database_specialist. For queries about "my orders", "my recent purchases", etc., 
+simply call the database_specialist - you don't need to ask the customer for their ID.
+
+You can use multiple tools if needed to fully answer the question.
+Always provide helpful, complete responses to customers."""
+
+
+# ============================================================================
+# FACTORY FUNCTION
+# ============================================================================
+
+
+def create_supervisor_agent(
+    db_agent,
+    docs_agent,
+    state_schema=None,
+    use_checkpointer=True,
+    model=None,
+    system_prompt=None,
+):
+    """Create supervisor agent with sensible defaults.
+
+    This factory encodes what makes a "supervisor agent":
+    - Coordinates between specialized sub-agents
+    - Routes queries to appropriate specialists
+    - Can orchestrate parallel or sequential coordination
 
     Args:
-        db_agent: Compiled database agent graph
-        docs_agent: Compiled documents agent graph
+        db_agent: Compiled database agent graph (required).
+        docs_agent: Compiled documents agent graph (required).
         state_schema: Optional custom state schema (extends AgentState).
-                     If provided, allows agent to access additional state keys.
+        use_checkpointer: Whether to include checkpointer (True for dev, False for deployment).
+        model: Model to use (defaults to WORKSHOP_MODEL from .env or claude-haiku-4-5).
+        system_prompt: Custom system prompt (defaults to SUPERVISOR_AGENT_SYSTEM_PROMPT).
 
     Returns:
         Compiled supervisor agent graph that can route to specialists.
+
+    Examples:
+        >>> # Simple usage with defaults
+        >>> from agents import create_db_agent, create_docs_agent, create_supervisor_agent
+        >>> db_agent = create_db_agent()
+        >>> docs_agent = create_docs_agent()
+        >>> supervisor = create_supervisor_agent(db_agent, docs_agent)
+
+        >>> # Customize for specific needs
+        >>> supervisor = create_supervisor_agent(
+        ...     db_agent,
+        ...     docs_agent,
+        ...     state_schema=CustomState,
+        ...     model="openai:gpt-4o"
+        ... )
     """
+    # Use provided values or fall back to module defaults
+    llm = init_chat_model(model or DEFAULT_MODEL)
+    prompt = system_prompt or SUPERVISOR_AGENT_SYSTEM_PROMPT
 
     # Wrap Database Agent as a tool
     @tool(
@@ -50,24 +108,16 @@ def create_supervisor_agent(db_agent, docs_agent, state_schema=None):
         result = docs_agent.invoke({"messages": [{"role": "user", "content": query}]})
         return result["messages"][-1].content
 
-    # Create supervisor agent
-    llm = init_chat_model("anthropic:claude-haiku-4-5")
+    # Build agent kwargs
+    agent_kwargs = {
+        "model": llm,
+        "tools": [call_database_specialist, call_documentation_specialist],
+        "system_prompt": prompt,
+        "state_schema": state_schema or AgentState,
+    }
 
-    return create_agent(
-        model=llm,
-        tools=[call_database_specialist, call_documentation_specialist],
-        system_prompt="""You are a supervisor for TechHub customer support.
+    # Add checkpointer for development (platform handles it for deployment)
+    if use_checkpointer:
+        agent_kwargs["checkpointer"] = MemorySaver()
 
-Your role is to route queries to the appropriate specialists:
-- Use database_specialist for order status, product prices, and customer order history
-- Use documentation_specialist for product specs, policies, and general information
-
-Note: After customer identity verification, their customer_id is available and automatically included in the state
-when calling the database_specialist. For queries about "my orders", "my recent purchases", etc., 
-simply call the database_specialist - you don't need to ask the customer for their ID.
-
-You can use multiple tools if needed to fully answer the question.
-Always provide helpful, complete responses to customers.""",
-        checkpointer=MemorySaver(),
-        state_schema=state_schema or AgentState,
-    )
+    return create_agent(**agent_kwargs)
