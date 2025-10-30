@@ -14,10 +14,12 @@ Available deployments:
 - db_agent_graph: Database agent for querying orders and products
 - docs_agent_graph: Documents agent for searching product docs and policies
 - supervisor_agent_graph: Supervisor agent coordinating between specialists
+- supervisor_hitl_agent_graph: Complete verification + supervisor agent with HITL
 """
 
 __all__ = [
     "db_agent_graph",
     "docs_agent_graph",
     "supervisor_agent_graph",
+    "supervisor_hitl_agent_graph",
 ]

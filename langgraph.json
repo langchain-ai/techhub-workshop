@@ -3,7 +3,8 @@
   "graphs": {
     "db_agent": "./deployments/db_agent_graph.py:graph",
     "docs_agent": "./deployments/docs_agent_graph.py:graph",
-    "supervisor_agent": "./deployments/supervisor_agent_graph.py:graph"
+    "supervisor_agent": "./deployments/supervisor_agent_graph.py:graph",
+    "supervisor_hitl_agent": "./deployments/supervisor_hitl_agent_graph.py:graph"
   },
   "env": ".env"
 }
