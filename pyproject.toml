@@ -14,29 +14,25 @@ dependencies = [
     "langchain-core>=0.3.0",
     "langchain-anthropic>=0.3.0",
     "langchain-openai>=0.2.0",
-    
     # LangGraph
     "langgraph>=0.2.0",
-    
     # LangSmith
     "langsmith>=0.2.0",
-    
     # RAG & Embeddings
     "langchain-huggingface>=0.1.0",
     "langchain-community>=0.3.0",
     "langchain-text-splitters>=0.3.0",
     "sentence-transformers>=3.0.0",
-    
     # Jupyter
     "jupyter>=1.0.0",
     "ipykernel>=6.29.0",
-    
     # Utilities
     "python-dotenv>=1.0.0",
+    "langgraph-cli[inmem]>=0.4.4",
 ]
 
 [dependency-groups]
 dev = []
 
 [tool.hatch.build.targets.wheel]
-packages = ["tools", "agents", "utils"]
+packages = ["tools", "agents", "utils", "deployments"]

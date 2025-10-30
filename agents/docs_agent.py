@@ -4,26 +4,20 @@ This agent specializes in searching product documentation and store policies
 using retrieval-augmented generation (RAG).
 """
 
-from langchain.agents import create_agent
+from langchain.agents import AgentState, create_agent
 from langchain.chat_models import init_chat_model
 from langgraph.checkpoint.memory import MemorySaver
 
+from config import DEFAULT_MODEL
 from tools import search_policy_docs, search_product_docs
 
+# ============================================================================
+# AGENT CONFIGURATION
+# These constants define the documents agent's behavior and can be easily
+# customized for different workshop scenarios or customer requirements.
+# ============================================================================
 
-def create_docs_agent():
-    """Create Documents agent specialized in product documentation and policies.
-
-    Args:
-        state_schema: Optional custom state schema (extends AgentState).
-                     If provided, allows agent to access additional state keys.
-
-    Returns:
-        Compiled agent graph that can search product specs and policies.
-    """
-    llm = init_chat_model("anthropic:claude-haiku-4-5")
-
-    system_prompt = """You are a company policy and product information specialist for TechHub customer support.
+DOCS_AGENT_SYSTEM_PROMPT = """You are a company policy and product information specialist for TechHub customer support.
 
 Your role is to answer questions about product specifications, features, compatibility,
 policies (returns, warranties, shipping), and setup instructions.
@@ -31,9 +25,65 @@ policies (returns, warranties, shipping), and setup instructions.
 Always search the documentation to provide accurate, detailed information.
 If you cannot find information, say so clearly."""
 
-    return create_agent(
-        model=llm,
-        tools=[search_product_docs, search_policy_docs],
-        system_prompt=system_prompt,
-        checkpointer=MemorySaver(),
-    )
+# Base tools that every documents agent needs
+DOCS_AGENT_BASE_TOOLS = [
+    search_product_docs,
+    search_policy_docs,
+]
+
+
+# ============================================================================
+# FACTORY FUNCTION
+# ============================================================================
+
+
+def create_docs_agent(
+    state_schema=None,
+    use_checkpointer=True,
+    model=None,
+    system_prompt=None,
+):
+    """Create documents agent with sensible defaults.
+
+    This factory encodes what makes a "documents agent":
+    - Specializes in searching documentation and policies via RAG
+    - Uses document search tools (products, policies)
+    - Has appropriate system prompt for documentation queries
+
+    Args:
+        state_schema: Optional custom state schema (extends AgentState).
+        use_checkpointer: Whether to include checkpointer (True for dev, False for deployment).
+        model: Model to use (defaults to WORKSHOP_MODEL from .env or claude-haiku-4-5).
+        system_prompt: Custom system prompt (defaults to DOCS_AGENT_SYSTEM_PROMPT).
+
+    Returns:
+        Compiled agent graph that can search product specs and policies.
+
+    Examples:
+        >>> # Simple usage with defaults
+        >>> docs_agent = create_docs_agent()
+
+        >>> # Customize for specific needs
+        >>> docs_agent = create_docs_agent(
+        ...     state_schema=CustomState,
+        ...     model="openai:gpt-4o-mini"
+        ... )
+    """
+    # Use provided values or fall back to module defaults
+    llm = init_chat_model(model or DEFAULT_MODEL)
+    prompt = system_prompt or DOCS_AGENT_SYSTEM_PROMPT
+    tools = DOCS_AGENT_BASE_TOOLS.copy()
+
+    # Build agent kwargs
+    agent_kwargs = {
+        "model": llm,
+        "tools": tools,
+        "system_prompt": prompt,
+        "state_schema": state_schema or AgentState,
+    }
+
+    # Add checkpointer for development (platform handles it for deployment)
+    if use_checkpointer:
+        agent_kwargs["checkpointer"] = MemorySaver()
+
+    return create_agent(**agent_kwargs)

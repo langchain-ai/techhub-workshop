@@ -5,12 +5,20 @@ This module contains reusable agent configurations and implementations
 used across multiple workshop modules.
 """
 
-from agents.db_agent import create_db_agent
-from agents.docs_agent import create_docs_agent
+from agents.db_agent import DB_AGENT_BASE_TOOLS, DB_AGENT_SYSTEM_PROMPT, create_db_agent
+from agents.docs_agent import (
+    DOCS_AGENT_BASE_TOOLS,
+    DOCS_AGENT_SYSTEM_PROMPT,
+    create_docs_agent,
+)
 from agents.supervisor_agent import create_supervisor_agent
 
 __all__ = [
     "create_db_agent",
+    "DB_AGENT_SYSTEM_PROMPT",
+    "DB_AGENT_BASE_TOOLS",
     "create_docs_agent",
+    "DOCS_AGENT_SYSTEM_PROMPT",
+    "DOCS_AGENT_BASE_TOOLS",
     "create_supervisor_agent",
 ]
