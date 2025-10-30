@@ -8,12 +8,18 @@ These tools provide semantic search over:
 The vectorstore is pre-built from markdown documents and uses:
 - HuggingFace embeddings (local, no API key needed)
 - InMemoryVectorStore for fast retrieval
+- VectorStoreRetriever for proper tracing and Runnable interface
 - Metadata filtering to separate products from policies
+
+Tools use response_format="content_and_artifact" to return both:
+- Formatted content string for the LLM
+- Raw Document objects as artifacts for downstream processing and LangSmith tracing
 """
 
 import pickle
 from pathlib import Path
 
+from langchain_core.documents import Document
 from langchain_core.tools import tool
 
 # Load vectorstore once at module level
@@ -23,6 +29,8 @@ VECTORSTORE_PATH = (
 
 # Will be loaded on first use
 _vectorstore = None
+_product_retriever = None
+_policy_retriever = None
 
 
 def _get_vectorstore():
@@ -39,8 +47,38 @@ def _get_vectorstore():
     return _vectorstore
 
 
-@tool
-def search_product_docs(query: str) -> str:
+def _get_product_retriever():
+    """Lazy load the product documents retriever."""
+    global _product_retriever
+    if _product_retriever is None:
+        vectorstore = _get_vectorstore()
+        _product_retriever = vectorstore.as_retriever(
+            search_type="similarity",
+            search_kwargs={
+                "k": 3,
+                "filter": lambda doc: doc.metadata.get("doc_type") == "product",
+            },
+        )
+    return _product_retriever
+
+
+def _get_policy_retriever():
+    """Lazy load the policy documents retriever."""
+    global _policy_retriever
+    if _policy_retriever is None:
+        vectorstore = _get_vectorstore()
+        _policy_retriever = vectorstore.as_retriever(
+            search_type="similarity",
+            search_kwargs={
+                "k": 2,
+                "filter": lambda doc: doc.metadata.get("doc_type") == "policy",
+            },
+        )
+    return _policy_retriever
+
+
+@tool(response_format="content_and_artifact")
+def search_product_docs(query: str) -> tuple[str, list[Document]]:
     """Search product documentation for specifications, features, and details.
 
     Use this tool when users ask about:
@@ -54,30 +92,31 @@ def search_product_docs(query: str) -> str:
         query: What to search for (e.g., "USB-C ports on MacBook", "Sony headphone battery life")
 
     Returns:
-        Relevant product documentation content.
+        Tuple of (formatted_content, documents) where:
+        - formatted_content: Clean string for the LLM with product info
+        - documents: List of raw Document objects for downstream use and tracing
     """
-    vectorstore = _get_vectorstore()
+    retriever = _get_product_retriever()
 
-    # Filter function for product documents
-    results = vectorstore.similarity_search(
-        query, k=3, filter=lambda doc: doc.metadata.get("doc_type") == "product"
-    )
+    # Use retriever to get documents (better tracing in LangSmith)
+    results = retriever.invoke(query)
 
     if not results:
-        return "No relevant product documentation found."
+        return "No relevant product documentation found.", []
 
-    # Format results with sources
+    # Format results with sources for the LLM
     formatted_results = []
     for doc in results:
         product_name = doc.metadata.get("product_name", "Unknown Product")
         product_id = doc.metadata.get("product_id", "")
         formatted_results.append(f"[{product_name} ({product_id})]\n{doc.page_content}")
 
-    return "\n\n---\n\n".join(formatted_results)
+    # Return tuple: (content for LLM, raw docs as artifact)
+    return "\n\n---\n\n".join(formatted_results), results
 
 
-@tool
-def search_policy_docs(query: str) -> str:
+@tool(response_format="content_and_artifact")
+def search_policy_docs(query: str) -> tuple[str, list[Document]]:
     """Search store policies including returns, warranties, and shipping information.
 
     Use this tool when users ask about:
@@ -91,22 +130,23 @@ def search_policy_docs(query: str) -> str:
         query: What policy information to find (e.g., "return policy", "warranty coverage", "shipping times")
 
     Returns:
-        Relevant policy information.
+        Tuple of (formatted_content, documents) where:
+        - formatted_content: Clean string for the LLM with policy info
+        - documents: List of raw Document objects for downstream use and tracing
     """
-    vectorstore = _get_vectorstore()
+    retriever = _get_policy_retriever()
 
-    # Filter function for policy documents
-    results = vectorstore.similarity_search(
-        query, k=2, filter=lambda doc: doc.metadata.get("doc_type") == "policy"
-    )
+    # Use retriever to get documents (better tracing in LangSmith)
+    results = retriever.invoke(query)
 
     if not results:
-        return "No relevant policy information found."
+        return "No relevant policy information found.", []
 
-    # Format results with sources
+    # Format results with sources for the LLM
     formatted_results = []
     for doc in results:
         policy_name = doc.metadata.get("policy_name", "Unknown Policy")
         formatted_results.append(f"[{policy_name}]\n{doc.page_content}")
 
-    return "\n\n---\n\n".join(formatted_results)
+    # Return tuple: (content for LLM, raw docs as artifact)
+    return "\n\n---\n\n".join(formatted_results), results
