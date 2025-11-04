@@ -9,7 +9,7 @@ from langchain.chat_models import init_chat_model
 from langgraph.checkpoint.memory import MemorySaver
 
 from config import DEFAULT_MODEL
-from tools import get_order_details, get_product_price
+from tools import get_order_items, get_order_status, get_product_info
 
 # ============================================================================
 # AGENT CONFIGURATION
@@ -17,22 +17,42 @@ from tools import get_order_details, get_product_price
 # customized for different workshop scenarios or customer requirements.
 # ============================================================================
 
-DB_AGENT_SYSTEM_PROMPT = """You are a database specialist for TechHub customer support.
+# DB_AGENT_SYSTEM_PROMPT = """You are a database specialist for TechHub customer support.
 
-Your role is to query the TechHub database for:
-- Order status and details
-- Product prices and availability
+# Your role is to query the TechHub database for:
+# - Order status and details
+# - Product prices and availability
 
-Always provide specific, accurate information from the database.
-If you cannot find information, say so clearly.
+# Always provide specific, accurate information from the database.
+# If you cannot find information, say so clearly.
+
+# Note: For tools that need the customer_id (e.g., get_customer_orders), it will be automatically provided to the tool after a customer's identity is verified.
+# This means you don't need to ask the customer for their ID - you can just use the tool."""
+
+DB_AGENT_SYSTEM_PROMPT = """You are the database specialist for TechHub customer support.
+
+Your role is to answer queries from a supervisor agent about orders or products using the TechHub database tools you have been provided.
+You do NOT interact directly with customers, you only interact with the supervisor agent.
+
+Capabilities: Look up and report on recent orders, order status, order details (items, quantities), product prices, and product availability.
+
+Instructions:
+- Always retrieve answers directly from the database using the available tools.
+- If information is missing or not found, say so clearly.
+- Do NOT make assumptions or provide information not explicitly present in the database.
+
+Be accurate, concise, and specific in your replies.
 
 Note: For tools that need the customer_id (e.g., get_customer_orders), it will be automatically provided to the tool after a customer's identity is verified.
-This means you don't need to ask the customer for their ID - you can just use the tool."""
+This means you don't need to ask an ID or email address - you can just use the tool.
+"""
+
 
 # Base tools that every database agent needs
 DB_AGENT_BASE_TOOLS = [
-    get_order_details,
-    get_product_price,
+    get_order_status,
+    get_order_items,
+    get_product_info,
 ]
 
 
