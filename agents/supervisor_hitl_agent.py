@@ -14,15 +14,16 @@ This demonstrates LangGraph primitives for complex orchestration:
 - Subgraphs (supervisor agent as a node)
 """
 
-import sqlite3
 from pathlib import Path
 from typing import Literal, NamedTuple
 
 from langchain.agents import AgentState
 from langchain.chat_models import init_chat_model
+from langchain_community.utilities import SQLDatabase
 from langchain_core.messages import AIMessage, HumanMessage
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import START, StateGraph
+from langgraph.runtime import Runtime
 from langgraph.types import Command, interrupt
 from typing_extensions import Annotated, TypedDict
 
@@ -119,11 +120,12 @@ def create_email_extractor():
     return llm.with_structured_output(EmailExtraction)
 
 
-def validate_customer_email(email: str) -> CustomerInfo | None:
+def validate_customer_email(email: str, db: SQLDatabase) -> CustomerInfo | None:
     """Validate email format and lookup customer in database.
 
     Args:
         email: Email address to validate
+        db: SQLDatabase connection
 
     Returns:
         CustomerInfo with customer_id and customer_name if valid, None otherwise
@@ -133,16 +135,18 @@ def validate_customer_email(email: str) -> CustomerInfo | None:
         return None
 
     # Lookup in database
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-    cursor.execute("SELECT customer_id, name FROM customers WHERE email = ?", (email,))
-    result = cursor.fetchone()
-    conn.close()
+    result = db._execute(
+        f"SELECT customer_id, name FROM customers WHERE email = '{email}'"
+    )
+
+    # Convert SQLDatabase query results to list of tuples (values only)
+    result = [tuple(row.values()) for row in result]
 
     if not result:
         return None
 
-    return CustomerInfo(customer_id=result[0], customer_name=result[1])
+    customer_id, customer_name = result[0]
+    return CustomerInfo(customer_id=customer_id, customer_name=customer_name)
 
 
 # ============================================================================
@@ -175,7 +179,7 @@ def query_router(
 
 
 def verify_customer(
-    state: CustomState,
+    state: CustomState, runtime: Runtime
 ) -> Command[Literal["supervisor_agent", "collect_email"]]:
     """Ensure we have a valid customer email and set the `customer_id` in state.
 
@@ -190,7 +194,7 @@ def verify_customer(
 
     # If we have an email, attempt to validate it
     if extraction["email"]:
-        customer = validate_customer_email(extraction["email"])
+        customer = validate_customer_email(extraction["email"], runtime.context.db)
 
         if customer:
             # Success! Email verified → Go to supervisor

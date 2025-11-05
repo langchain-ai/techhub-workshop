@@ -17,15 +17,12 @@ Tools use response_format="content_and_artifact" to return both:
 """
 
 import pickle
-from pathlib import Path
 
+from langchain.tools import ToolRuntime
 from langchain_core.documents import Document
 from langchain_core.tools import tool
 
-# Load vectorstore once at module level
-VECTORSTORE_PATH = (
-    Path(__file__).parent.parent / "data" / "vector_stores" / "techhub_vectorstore.pkl"
-)
+from config import DEFAULT_VECTORSTORE_PATH
 
 # Will be loaded on first use
 _vectorstore = None
@@ -37,12 +34,12 @@ def _get_vectorstore():
     """Lazy load the vectorstore."""
     global _vectorstore
     if _vectorstore is None:
-        if not VECTORSTORE_PATH.exists():
+        if not DEFAULT_VECTORSTORE_PATH.exists():
             raise FileNotFoundError(
-                f"Vectorstore not found at {VECTORSTORE_PATH}. "
+                f"Vectorstore not found at {DEFAULT_VECTORSTORE_PATH}. "
                 "Please run: python utils/build_vectorstore.py"
             )
-        with open(VECTORSTORE_PATH, "rb") as f:
+        with open(DEFAULT_VECTORSTORE_PATH, "rb") as f:
             _vectorstore = pickle.load(f)
     return _vectorstore
 
@@ -78,7 +75,7 @@ def _get_policy_retriever():
 
 
 @tool(response_format="content_and_artifact")
-def search_product_docs(query: str) -> tuple[str, list[Document]]:
+def search_product_docs(query: str, runtime: ToolRuntime) -> tuple[str, list[Document]]:
     """Search product documentation for specifications, features, and details.
 
     Use this tool when users ask about:
@@ -96,7 +93,7 @@ def search_product_docs(query: str) -> tuple[str, list[Document]]:
         - formatted_content: Clean string for the LLM with product info
         - documents: List of raw Document objects for downstream use and tracing
     """
-    retriever = _get_product_retriever()
+    retriever = runtime.context.product_retriever
 
     # Use retriever to get documents (better tracing in LangSmith)
     results = retriever.invoke(query)
@@ -116,7 +113,7 @@ def search_product_docs(query: str) -> tuple[str, list[Document]]:
 
 
 @tool(response_format="content_and_artifact")
-def search_policy_docs(query: str) -> tuple[str, list[Document]]:
+def search_policy_docs(query: str, runtime: ToolRuntime) -> tuple[str, list[Document]]:
     """Search store policies including returns, warranties, and shipping information.
 
     Use this tool when users ask about:
@@ -134,7 +131,7 @@ def search_policy_docs(query: str) -> tuple[str, list[Document]]:
         - formatted_content: Clean string for the LLM with policy info
         - documents: List of raw Document objects for downstream use and tracing
     """
-    retriever = _get_policy_retriever()
+    retriever = runtime.context.policy_retriever
 
     # Use retriever to get documents (better tracing in LangSmith)
     results = retriever.invoke(query)
