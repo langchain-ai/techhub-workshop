@@ -190,3 +190,38 @@ def get_customer_orders(customer_id: str, runtime: ToolRuntime) -> str:
         response += f"- {order_id}: {order_date}, {status}, ${total:.2f}\n"
 
     return response
+
+
+# Base SQL execution tool
+@tool
+def execute_sql(query: str, runtime: ToolRuntime) -> str:
+    """Execute a SELECT query against the TechHub database.
+
+    Safety: Only SELECT queries allowed - no INSERT/UPDATE/DELETE/etc.
+    """
+    # Safety check: Only allow SELECT queries
+    if not query.strip().upper().startswith("SELECT"):
+        return "Error: Only SELECT queries are allowed."
+
+    # Block dangerous keywords
+    FORBIDDEN = [
+        "INSERT",
+        "UPDATE",
+        "DELETE",
+        "ALTER",
+        "DROP",
+        "CREATE",
+        "REPLACE",
+        "TRUNCATE",
+    ]
+    if any(keyword in query.upper() for keyword in FORBIDDEN):
+        return "Error: Query contains forbidden keyword."
+
+    # Execute query
+    db = get_database()
+    try:
+        result = db._execute(query)
+        result = [tuple(row.values()) for row in result]  # extract values
+        return result
+    except Exception as e:
+        return f"SQL Error: {str(e)}"

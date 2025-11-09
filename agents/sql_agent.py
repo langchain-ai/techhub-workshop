@@ -11,11 +11,10 @@ queries on-demand to handle any database question.
 
 from langchain.agents import AgentState, create_agent
 from langchain.chat_models import init_chat_model
-from langchain.tools import ToolRuntime, tool
 from langgraph.checkpoint.memory import MemorySaver
 
 from config import DEFAULT_MODEL
-from tools.database import get_database
+from tools.database import execute_sql, get_database
 
 # ============================================================================
 # AGENT CONFIGURATION
@@ -55,46 +54,7 @@ Guidelines:
 6. Be accurate, concise, and specific in your replies.
 
 Important: Read-only access - no INSERT/UPDATE/DELETE operations.
-
-Note: For queries about customer orders, after a customer's identity is verified, 
-their customer_id will be automatically available in the database connection context.
-This means you can write queries that filter by the customer_id from the customers table 
-using their email without needing to ask for it."""
-
-
-# Base SQL execution tool
-@tool
-def execute_sql(query: str, runtime: ToolRuntime) -> str:
-    """Execute a SELECT query against the TechHub database.
-
-    Safety: Only SELECT queries allowed - no INSERT/UPDATE/DELETE/etc.
-    """
-    # Safety check: Only allow SELECT queries
-    if not query.strip().upper().startswith("SELECT"):
-        return "Error: Only SELECT queries are allowed."
-
-    # Block dangerous keywords
-    FORBIDDEN = [
-        "INSERT",
-        "UPDATE",
-        "DELETE",
-        "ALTER",
-        "DROP",
-        "CREATE",
-        "REPLACE",
-        "TRUNCATE",
-    ]
-    if any(keyword in query.upper() for keyword in FORBIDDEN):
-        return "Error: Query contains forbidden keyword."
-
-    # Execute query
-    db = get_database()
-    try:
-        result = db._execute(query)
-        result = [tuple(row.values()) for row in result]  # extract values
-        return result
-    except Exception as e:
-        return f"SQL Error: {str(e)}"
+"""
 
 
 SQL_AGENT_BASE_TOOLS = [execute_sql]
