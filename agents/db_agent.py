@@ -9,7 +9,12 @@ from langchain.chat_models import init_chat_model
 from langgraph.checkpoint.memory import MemorySaver
 
 from config import DEFAULT_MODEL
-from tools import get_order_items, get_order_status, get_product_info
+from tools import (
+    get_order_item_price,
+    get_order_items,
+    get_order_status,
+    get_product_info,
+)
 
 # ============================================================================
 # AGENT CONFIGURATION
@@ -42,9 +47,6 @@ Instructions:
 - Do NOT make assumptions or provide information not explicitly present in the database.
 
 Be accurate, concise, and specific in your replies.
-
-Note: For tools that need the customer_id (e.g., get_customer_orders), it will be automatically provided to the tool after a customer's identity is verified.
-This means you don't need to ask an ID or email address - you can just use the tool.
 """
 
 
@@ -53,6 +55,7 @@ DB_AGENT_BASE_TOOLS = [
     get_order_status,
     get_order_items,
     get_product_info,
+    get_order_item_price,
 ]
 
 

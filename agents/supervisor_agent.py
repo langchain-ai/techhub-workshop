@@ -6,8 +6,9 @@ can orchestrate parallel or sequential coordination when needed.
 """
 
 from langchain.agents import AgentState, create_agent
+from langchain.agents.middleware import ModelRequest, dynamic_prompt
 from langchain.chat_models import init_chat_model
-from langchain.tools import ToolRuntime, tool
+from langchain.tools import tool
 from langgraph.checkpoint.memory import MemorySaver
 
 from config import DEFAULT_MODEL
@@ -30,8 +31,9 @@ Capabilities:
 - Formulate queries to the documentation_specialist to help answer questions about product specs, policies, warranties, and setup instructions
 
 IMPORTANT:
+- For the database_specialist, if the question requires finding information about a specific customer, you will need to include the customer's email AND customer_id in your query!
+- Do not answer questions about the database or documentation by yourself, always use the tools provided to you to get the information you need.
 - Be sure to phrase your queries to the sub-agents from your perspective as the supervisor agent, not the customer's perspective.
-- Ensure your queries to the sub-agents include all the information needed to answer the question (e.g. customer_id and customer_email if needed)
 
 You can use multiple tools if needed to fully answer the question.
 Always provide helpful, accurate, concise, and specific responses to customer questions."""
@@ -87,20 +89,25 @@ def create_supervisor_agent(
     llm = init_chat_model(model or DEFAULT_MODEL)
     prompt = system_prompt or SUPERVISOR_AGENT_SYSTEM_PROMPT
 
+    # Dynamic prompt middleware to inject customer_id if it exists in state
+    @dynamic_prompt
+    def supervisor_prompt(request: ModelRequest) -> str:
+        customer_id = request.state.get("customer_id", None)
+
+        if customer_id:
+            return f"""{prompt}
+            \n\n The customer's ID in this conversation is: {customer_id}
+            """
+        else:
+            return prompt
+
     # Wrap Database Agent as a tool
     @tool(
         "database_specialist",
         description="Query TechHub database specialist for order status, order details, product prices, product availability, and customer accounts.",
     )
-    def call_database_specialist(runtime: ToolRuntime, query: str) -> str:
-
-        invocation_state = {"messages": [{"role": "user", "content": query}]}
-
-        # Forward customer_id if it exists in supervisor's state
-        if runtime.state.get("customer_id"):
-            invocation_state["customer_id"] = runtime.state.get("customer_id")
-
-        result = db_agent.invoke(invocation_state)
+    def call_database_specialist(query: str) -> str:
+        result = db_agent.invoke({"messages": [{"role": "user", "content": query}]})
         return result["messages"][-1].content
 
     # Wrap Documents Agent as a tool
@@ -116,8 +123,8 @@ def create_supervisor_agent(
     agent_kwargs = {
         "model": llm,
         "tools": [call_database_specialist, call_documentation_specialist],
-        "system_prompt": prompt,
         "state_schema": state_schema or AgentState,
+        "middleware": [supervisor_prompt],
     }
 
     # Add checkpointer for development (platform handles it for deployment)

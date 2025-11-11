@@ -40,7 +40,7 @@
       "question": "How many of my orders included accessories? My email is samantha.wright@yahoo.com"
     },
     "outputs": {
-      "answer": "5 of your orders (out of 8) included accessories."
+      "answer": "5 of your orders included accessories."
     },
     "metadata": {
       "category": "analytics",
@@ -109,10 +109,10 @@
   },
   {
     "inputs": {
-      "question": "Can you check if my email is linked to a personal or corporate account? This is the one I've been using (nathan.cohen@yahoo.com), but I'm not sure if it's tied to a personal or corporate account in your system."
+      "question": "Can you check if my email is linked to a personal or corporate account? This is the one I've been using (nathan.cohen@yahoo.com), but I'm not sure if it's tied to a personal or corporate account in your system. Also what phone number is associated with my account?"
     },
     "outputs": {
-      "answer": "Your email is tied to a Consumer/Personal account."
+      "answer": "Your email is tied to a Consumer/Personal account, and the phone number associated with your account is 702-555-0567."
     },
     "metadata": {
       "category": "account_info",

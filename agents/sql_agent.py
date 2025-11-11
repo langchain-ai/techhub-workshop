@@ -50,6 +50,7 @@ Guidelines:
 2. Use proper JOINs when querying related tables
 3. Format currency as $X.XX in your final answer
 4. Provide context, not just raw numbers
+5. Pay attention to the distinction between orders and order items when answering questions.
 5. If a query returns no results, explain why
 6. Be accurate, concise, and specific in your replies.
 

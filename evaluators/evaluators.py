@@ -36,9 +36,13 @@ Your task is to assign a boolean score based on the following rubric:
   - Compare the output to the reference_output
   - Check for factual accuracy and completeness
   - Focus on correctness of information rather than style or verbosity differences
-  - It's ok if the ouput provides additional information that is not directly included in the reference output
   - Return a boolean score (True if correct, False if incorrect), not a string
 </Instructions>
+
+<Note>
+- It's ok if the ouput provides additional information that is not directly included in the reference output
+- The output is just the final output from an agent invocation, so it will not include all the intermediate steps or tool calls, this is ok.
+</Note>
 
 <input>
 {inputs}

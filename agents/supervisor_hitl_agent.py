@@ -196,7 +196,7 @@ def verify_customer(
                     "customer_id": customer.customer_id,
                     "messages": [
                         AIMessage(
-                            content=f"✓ Verified! Welcome back, {customer.customer_name}, your customer ID is {customer.customer_id}."
+                            content=f"✓ Verified! Welcome back, {customer.customer_name}."
                         )
                     ],
                 },
@@ -278,7 +278,6 @@ def create_supervisor_hitl_agent(
     # The db_agent gets get_customer_orders, which uses ToolRuntime to access customer_id
     if db_agent is None:
         db_agent = create_db_agent(
-            state_schema=IntermediateState,
             additional_tools=[get_customer_orders],
             use_checkpointer=use_checkpointer,
         )

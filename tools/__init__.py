@@ -8,6 +8,7 @@ then refactored here for reuse in later sections.
 
 from tools.database import (
     get_customer_orders,
+    get_order_item_price,
     get_order_items,
     get_order_status,
     get_product_info,
@@ -18,6 +19,7 @@ __all__ = [
     "get_order_status",
     "get_order_items",
     "get_product_info",
+    "get_order_item_price",
     "get_customer_orders",
     "search_product_docs",
     "search_policy_docs",
