@@ -44,6 +44,47 @@ python data/data_generation/build_vectorstore.py
 # Launch Jupyter
 jupyter lab
 ```
+## Repo Structure
+
+```
+techhub-workshop/
+├── workshop_modules/        # Interactive Jupyter notebooks
+│   ├── module_1/            # Agent Development (4 sections)
+│   ├── module_2/            # Evaluation & Improvement (2 sections)
+│   └── module_3/            # Deployment & Monitoring (coming soon)
+│
+├── agents/                  # Reusable agent factory functions
+│   ├── db_agent.py          # Database queries (rigid tools)
+│   ├── sql_agent.py         # Flexible SQL generation (improved)
+│   ├── docs_agent.py        # RAG for product docs & policies
+│   ├── supervisor_agent.py  # Multi-agent coordinator
+│   └── supervisor_hitl_agent.py  # Full verification + routing system
+│
+├── tools/                   # Database & document search tools
+│   ├── database.py          # 6 DB tools (orders, products, SQL)
+│   └── documents.py         # 2 RAG tools (products, policies)
+│
+├── evaluators/              # Evaluation metrics
+│   └── evaluators.py        # Correctness & tool call counters
+│
+├── deployments/             # Production-ready graph configurations
+│   ├── db_agent_graph.py                   # Baseline database agent
+│   ├── docs_agent_graph.py                 # RAG documents agent
+│   ├── sql_agent_graph.py                  # Improved SQL agent
+│   ├── supervisor_agent_graph.py           # Basic supervisor
+│   ├── supervisor_hitl_agent_graph.py      # Supervisor with verification
+│   └── supervisor_hitl_sql_agent_graph.py  # Complete system (best)
+│
+├── data/                    # Complete dataset & generation scripts
+│   ├── structured/          # SQLite DB + JSON files
+│   ├── documents/           # Markdown docs for RAG
+│   ├── vector_stores/       # Pre-built vectorstore
+│   └── data_generation/     # Scripts to regenerate data
+│
+├── config.py                # Workshop-wide configuration
+├── langgraph.json           # LangGraph deployment config
+└── pyproject.toml           # Dependencies
+```
 
 ## Workshop Structure
 
@@ -109,48 +150,6 @@ Each notebook includes:
 - 💻 Working code examples
 - 🎯 Hands-on exercises
 - 🔗 Links to LangSmith traces for observability
-
-## Project Architecture
-
-```
-techhub-workshop/
-├── workshop_modules/        # Interactive Jupyter notebooks
-│   ├── module_1/            # Agent Development (4 sections)
-│   ├── module_2/            # Evaluation & Improvement (2 sections)
-│   └── module_3/            # Deployment & Monitoring (coming soon)
-│
-├── agents/                  # Reusable agent factory functions
-│   ├── db_agent.py          # Database queries (rigid tools)
-│   ├── sql_agent.py         # Flexible SQL generation (improved)
-│   ├── docs_agent.py        # RAG for product docs & policies
-│   ├── supervisor_agent.py  # Multi-agent coordinator
-│   └── supervisor_hitl_agent.py  # Full verification + routing system
-│
-├── tools/                   # Database & document search tools
-│   ├── database.py          # 6 DB tools (orders, products, SQL)
-│   └── documents.py         # 2 RAG tools (products, policies)
-│
-├── evaluators/              # Evaluation metrics
-│   └── evaluators.py        # Correctness & tool call counters
-│
-├── deployments/             # Production-ready graph configurations
-│   ├── db_agent_graph.py                   # Baseline database agent
-│   ├── docs_agent_graph.py                 # RAG documents agent
-│   ├── sql_agent_graph.py                  # Improved SQL agent
-│   ├── supervisor_agent_graph.py           # Basic supervisor
-│   ├── supervisor_hitl_agent_graph.py      # Supervisor with verification
-│   └── supervisor_hitl_sql_agent_graph.py  # Complete system (best)
-│
-├── data/                    # Complete dataset & generation scripts
-│   ├── structured/          # SQLite DB + JSON files
-│   ├── documents/           # Markdown docs for RAG
-│   ├── vector_stores/       # Pre-built vectorstore
-│   └── data_generation/     # Scripts to regenerate data
-│
-├── config.py                # Workshop-wide configuration
-├── langgraph.json           # LangGraph deployment config
-└── pyproject.toml           # Dependencies
-```
 
 ## Key Concepts Covered
 
